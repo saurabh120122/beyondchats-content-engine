@@ -1,0 +1,25 @@
+{
+  "name": "beyondchats-content-engine",
+  "version": "1.0.0",
+  "description": "Node.js + MongoDB content engine for scraping, enhancing, and publishing blog articles using LLMs",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js",
+    "llm": "node src/runFullWorkFlow.js",
+    "pipeline": "node src/pipeline/runPipeline.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@mozilla/readability": "^0.5.0",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsdom": "^24.0.0",
+    "mongoose": "^8.5.1",
+    "openai": "^4.52.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
