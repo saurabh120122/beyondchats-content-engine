@@ -1,144 +1,176 @@
-# 🚀 BeyondChats Content Engine
+# 🚀 BeyondChats Content Engine (Full Stack)
 
-A robust Node.js automation engine that scrapes blog content, enhances it using AI (Google Gemini), and publishes it via a RESTful API.
+A powerful automation engine that scrapes blog content, enhances it using Google Gemini AI, and serves it via a React dashboard. The system is designed to be "Fail-Fast" and robust, ensuring high-quality content generation with zero manual intervention.
 
-## 📋 Overview
+## 🌐 Live Demo
 
-This project consists of two main automated workflows:
+* **Frontend (Vercel):** [https://beyondchats-content-engine.vercel.app/](https://beyondchats-content-engine.vercel.app/)
+* **Backend API (Render):** [https://beyondchats-content-engine.onrender.com/api/articles](https://www.google.com/search?q=https://beyondchats-content-engine.onrender.com/api/articles)
 
-1. **Phase 1 (Scraper):** Crawls the *BeyondChats* blog to find and store the 5 oldest articles.
-2. **Phase 2 (AI Pipeline):** Takes the latest stored article, researches related high-ranking content on Google, and uses an LLM (Google Gemini) to rewrite and enhance the article with improved formatting and citations.
+---
 
 ## ✨ Features
 
-* **Smart Pagination:** Automatically traverses blog pagination to find the oldest content.
-* **Fail-Fast Architecture:** The pipeline aborts immediately if data is missing or scraping fails, preventing bad data from entering the database.
-* **AI-Powered Rewriting:** Uses **Google Gemini 1.5/Pro** to rewrite content with HTML formatting.
-* **Research Automation:** Searches Google Custom Search API to find relevant reference material.
-* **Robust Scraping:** Uses `@mozilla/readability` and `JSDOM` with `VirtualConsole` to parse external websites cleanly.
-* **Error Handling:** Centralized `ApiError` and `asyncHandler` for clean controller logic.
+### 🧠 AI & Automation
 
-## 🛠️ Tech Stack
+* **Smart Scraping:** Crawls *BeyondChats.com* to identify and extract the 5 oldest blog posts using `Mozilla Readability` for clean HTML extraction.
+* **AI Enhancement:** Uses **Google Gemini Pro** to rewrite articles, adding professional formatting, depth, and citations.
+* **Research Automation:** Automatically searches Google (Custom Search API) to find relevant, high-quality reference links for every article.
 
-* **Runtime:** Node.js
-* **Database:** MongoDB (Mongoose)
-* **AI Model:** Google Gemini (via `@google/generative-ai`)
-* **Scraping:** JSDOM, Mozilla Readability, Axios
-* **Search:** Google Custom Search JSON API
+### 💻 User Interface (React)
 
-## ⚙️ Prerequisites
+* **Interactive Dashboard:** View original vs. AI-enhanced articles side-by-side.
+* **Manual Triggers:** Buttons to trigger the Scraper or AI Pipeline on demand.
+* **Content Management:** Delete specific articles or wipe the entire database with one click.
+* **Smart Rendering:** Automatically detects and formats HTML content vs. plain text.
 
-Before running the project, ensure you have:
+### ⚙️ Backend Architecture
 
-1. **Node.js** (v18+ recommended)
-2. **MongoDB** (Local or Atlas URL)
-3. **API Keys**:
-* **Google Custom Search API Key** (for searching the web)
-* **Google CSE ID** (Custom Search Engine ID)
-* **Google Gemini API Key** (for AI generation)
+* **Fail-Fast Pipeline:** The AI workflow aborts immediately if data is missing or scraping fails, preventing database corruption.
+* **Robust Error Handling:** Centralized `ApiError` and `asyncHandler` logic.
+* **Connection Management:** Smart MongoDB connection handling that works for both standalone scripts and API requests.
 
-
-
-## 🚀 Installation & Setup
-
-1. **Clone the repository** (if applicable) or navigate to your project folder.
-2. **Install Dependencies**
-```bash
-npm install
-
-```
-
-
-3. **Configure Environment Variables**
-Create a `.env` file in the root directory and add the following:
-```env
-PORT=5050
-MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/beyondchats
-
-# Google Search Config
-GOOGLE_API_KEY=your_google_api_key_here
-GOOGLE_CSE_ID=your_cse_id_here
-
-# AI Config
-GEMINI_API_KEY=your_gemini_api_key_here
-
-```
-
-
-
-## 🏃‍♂️ How to Run
-
-### 1. Start the API Server
-
-This keeps your REST API running so you can access the data via browser or Postman.
-
-```bash
-npm run dev
-# OR
-node src/app.js
-
-```
-
-* Server runs at: `http://localhost:5050`
-
-### 2. Run the Automation Workflow
-
-This runs **Phase 1** (Scraping) followed immediately by **Phase 2** (AI Enhancement).
-
-```bash
-node src/runFullWorkflow.js
-
-```
-
-**What happens when you run this?**
-
-1. **Scraper** connects to MongoDB.
-2. It traverses `beyondchats.com` to find the last page.
-3. It saves the 5 oldest articles to the database.
-4. **Pipeline** picks the latest article from the DB.
-5. It searches Google for that title.
-6. It scrapes 2 valid external sources for context.
-7. It uses Gemini to rewrite the article.
-8. It saves a **new** article (Total DB count: 6).
+---
 
 ## 📂 Project Structure
 
-```
-src/
-├── config/
-│   └── db.js                 # MongoDB Connection logic
-├── controllers/
-│   └── articleController.js  # API logic (get, create)
-├── middlewares/
-│   └── errorMiddleware.js    # Global error handling
-├── models/
-│   └── article.js            # Mongoose Schema
-├── pipeline/
-│   └── runPipeline.js        # Phase 2: AI Enhancement Logic
-├── routes/
-│   └── articleRoutes.js      # Express Routes
-├── services/
-│   ├── beyondChatsScraper.js # Phase 1: Blog Scraper
-│   ├── googleSearchService.js# Google API integration
-│   ├── llmService.js         # Gemini AI integration
-│   └── scraperService.js     # Generic JSDOM/Readability scraper
-├── utils/
-│   ├── ApiError.js           # Custom Error Class
-│   └── asyncHandler.js       # Wrapper for async controllers
-├── app.js                    # Main Express App
-└── runFullWorkflow.js        # Master script to run everything
+```text
+root/
+├── backend/                 # Node.js + Express API
+│   ├── src/
+│   │   ├── config/          # DB Connection
+│   │   ├── controllers/     # API Logic (get, delete, trigger)
+│   │   ├── middlewares/     # Error Handling & CORS
+│   │   ├── models/          # Mongoose Schemas
+│   │   ├── pipeline/        # AI Workflow (runPipeline.js)
+│   │   ├── routes/          # API Routes
+│   │   ├── services/        # Scraper, Google Search, Gemini LLM
+│   │   ├── utils/           # AsyncWrapper, ApiError Class
+│   │   └── app.js           # Entry Point
+│   └── package.json
+│
+└── frontend/                # React + Vite
+    ├── src/
+    │   ├── App.jsx          # Main Dashboard Logic
+    │   ├── App.css          # Styling & layout
+    │   └── main.jsx         # React Entry
+    └── package.json
 
 ```
 
-## 📡 API Endpoints
+---
+
+## 🛠️ Workflows Explained
+
+### 1. The Scraper Workflow (`POST /api/articles/scrape`)
+
+1. Connects to MongoDB (preserves connection if server is running).
+2. Crawls `beyondchats.com/blogs/` to find the last pagination page.
+3. Identifies the 5 oldest articles.
+4. Uses `JSDOM` + `Readability` to extract the main content (ignoring sidebars/footers).
+5. Updates or Inserts them into the database.
+
+### 2. The AI Pipeline Workflow (`POST /api/articles/pipeline`)
+
+1. Selects the **latest non-enhanced** article from the DB.
+2. Searches Google for the article title to find external context.
+3. Scrapes the top 2 valid search results (skipping blocked sites like Reddit).
+4. Sends the Draft + 2 Research Sources to **Google Gemini**.
+5. Gemini rewrites the article in HTML format.
+6. Saves the new version as `Title (AI Enhanced)`.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+* Node.js (v18+)
+* MongoDB (Atlas or Local)
+* Google Cloud Console Account (for Custom Search & Gemini API)
+
+### 1. Environment Variables
+
+Create a `.env` file in the **`backend/`** folder:
+
+```env
+PORT=5050
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/beyondchats
+GOOGLE_API_KEY=your_google_search_api_key
+GOOGLE_CSE_ID=your_custom_search_engine_id
+GEMINI_API_KEY=your_gemini_api_key
+
+```
+
+Create a `.env` file in the **`frontend/`** folder:
+
+```env
+VITE_API_URL=http://localhost:5050/api/articles
+# For production: https://your-backend.onrender.com/api/articles
+
+```
+
+### 2. Installation
+
+**Backend:**
+
+```bash
+cd backend
+npm install
+npm run dev
+
+```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm install
+npm run dev
+
+```
+
+Visit `http://localhost:5173` to view the app.
+
+---
+
+## 📡 API Reference
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `GET` | `/api/articles` | Fetch all articles (sorted by newest) |
-| `GET` | `/api/articles/latest` | Fetch the single latest article |
-| `POST` | `/api/articles` | Manually create a new article |
+| `POST` | `/api/articles/scrape` | Trigger the Scraper (Fetch 5 oldest blogs) |
+| `POST` | `/api/articles/pipeline` | Trigger AI Enhancement for one article |
+| `DELETE` | `/api/articles/:id` | Delete a specific article by ID |
+| `DELETE` | `/api/articles/all` | **DANGER:** Delete ALL articles |
+
+---
+
+## ☁️ Deployment Guide
+
+### Backend (Render)
+
+1. Push code to GitHub.
+2. Create a **Web Service** on Render.
+3. Root Directory: `backend`.
+4. Build Command: `npm install`.
+5. Start Command: `node src/app.js`.
+6. Add Environment Variables from your `.env`.
+
+### Frontend (Vercel)
+
+1. Import Repo to Vercel.
+2. Root Directory: `frontend`.
+3. Add Environment Variable:
+* `VITE_API_URL`: `https://your-render-backend.onrender.com/api/articles`
+
+
+4. Deploy!
+
+---
 
 ## 🛡️ Troubleshooting
 
-* **429 Quota Exceeded:** Your OpenAI/Gemini free tier might be exhausted. The code is currently set to use `gemini-pro` (free tier friendly).
-* **403 Forbidden (Scraping):** Some sites (like Reddit) block scrapers. The pipeline is designed to skip these and try the next available link from Google results.
+* **"Refused to connect"**: Ensure your frontend `.env` points to the correct backend URL (http vs https).
+* **Backend Sleeps**: On Render Free Tier, the first request after inactivity takes ~50s.
+* **Scraping Errors**: If `beyondchats.com` changes its layout, update selectors in `beyondChatsScraper.js`.
