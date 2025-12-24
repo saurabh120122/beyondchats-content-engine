@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Article from "../models/article.js";
 import { searchGoogle } from "../services/googleSearchService.js";
-import { extractContent } from "../services/ScraperService.js";
+import { extractContent } from "../services/scraperService.js";
 import { rewriteArticle } from "../services/llmService.js";
 
 dotenv.config();
@@ -10,24 +10,31 @@ dotenv.config();
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
 export default async function runPipeline() {
+  let connectionCreated = false;
+
   try {
+    // 1. Connect ONLY if not already connected (prevents conflicts)
     if (mongoose.connection.readyState === 0) {
       console.log("⏳ Connecting to MongoDB...");
       await mongoose.connect(MONGO_URI);
+      connectionCreated = true;
       console.log("✅ Connected.");
     }
 
-    // 1. Fetch Latest
-    const article = await Article.findOne().sort({ createdAt: -1 });
-    if (!article) throw new Error("No articles found in DB.");
-    
-    if (article.title.includes("(AI Enhanced)")) {
-         throw new Error("Latest article is already AI enhanced. Stopping.");
+    // 2. Find Latest NON-Enhanced Article
+    // We use a regex filter to skip titles containing "AI Enhanced"
+    const article = await Article.findOne({
+      title: { $not: { $regex: "AI Enhanced", $options: "i" } }
+    }).sort({ createdAt: -1 });
+
+    if (!article) {
+      console.log("⚠️ All articles are already enhanced or no articles found.");
+      return; // Stop gracefully
     }
 
     console.log(`📄 Enhancing: "${article.title}"`);
 
-    // 2. Search Google
+    // 3. Search Google
     console.log("🌐 Searching Google...");
     const allLinks = await searchGoogle(article.title);
     
@@ -35,7 +42,7 @@ export default async function runPipeline() {
         throw new Error("Google Search returned 0 results.");
     }
 
-    // 3. Scrape Loop
+    // 4. Scrape Loop
     console.log(`🔍 Found ${allLinks.length} links. Need 2 valid sources...`);
     const validSources = [];
     
@@ -62,7 +69,7 @@ export default async function runPipeline() {
         throw new Error(`Pipeline Failed: Found ${validSources.length}/2 valid sources.`);
     }
 
-    // 4. Generate AI Content
+    // 5. Generate AI Content
     console.log("🤖 Generating new content...");
     const updatedContent = await rewriteArticle(
         article.content || "", 
@@ -70,7 +77,7 @@ export default async function runPipeline() {
         validSources[1].content
     );
 
-    // 5. Save New Article
+    // 6. Save New Article
     console.log("💾 Saving...");
     const usedLinks = validSources.map(s => s.link);
     
@@ -96,14 +103,19 @@ export default async function runPipeline() {
 
   } catch (error) {
     console.error("\n❌ ABORTING PIPELINE:", error.message);
-    console.error("⛔ No changes made to DB.");
+    // Don't kill process, just log error so controller handles it
+    throw error; 
   } finally {
-    await mongoose.disconnect();
-    console.log("👋 Disconnected.");
-    process.exit(0);
+    // Only disconnect if WE started the connection (Standalone mode)
+    // If Server started it, keep it open!
+    if (connectionCreated) {
+        await mongoose.disconnect();
+        console.log("👋 Disconnected.");
+    }
   }
 }
 
+// Only exit process if running directly from terminal
 if (process.argv[1].endsWith('runPipeline.js')) {
-    runPipeline();
+    runPipeline().then(() => process.exit(0));
 }

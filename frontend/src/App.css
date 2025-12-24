@@ -1,0 +1,218 @@
+:root {
+  --primary: #2563eb;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Center everything */
+.container {
+  max-width: 1200px; /* Increased width */
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers children horizontally */
+}
+
+/* Header: Row layout with Button on Right */
+header {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: space-between; /* Title Left, Button Right */
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+h1 { margin: 0; font-size: 1.8rem; color: #0f172a; }
+
+/* Grid Layout: Centered Cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  justify-items: center; /* Centers cards inside their grid cells */
+}
+
+/* Article Card */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 220px;
+  width: 100%; /* Fill grid cell */
+  box-sizing: border-box;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+}
+
+.card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  background: #eff6ff;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); }
+.btn-primary:disabled { background-color: #94a3b8; cursor: not-allowed; transform: none; }
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  z-index: 100;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  max-height: 85vh;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f8fafc;
+}
+
+.modal-body {
+  padding: 2rem;
+  overflow-y: auto;
+  line-height: 1.8;
+  color: #334155;
+  font-size: 1.05rem;
+  
+  /* CRITICAL FIX: This makes plain text respect newlines (\n) */
+  white-space: pre-wrap; 
+}
+
+/* If content is HTML, these enhance it */
+.modal-body h1, .modal-body h2, .modal-body h3 { 
+    color: #0f172a; margin-top: 1.5rem; 
+}
+.modal-body ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+.modal-body li { margin-bottom: 0.5rem; }
+.modal-body a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+.modal-body hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+.delete-icon-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #ef4444; 
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0; 
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.delete-icon-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.card:hover .delete-icon-btn {
+  opacity: 1;
+}
